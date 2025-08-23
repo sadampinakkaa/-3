@@ -1,0 +1,76 @@
+{%- assign color_white_label = 'general.label.white' | t | downcase -%}
+{%- assign color_white_label_2 = 'general.label.white_2' | t | downcase -%}
+{%- assign color_off_white_label = 'general.label.off_white' | t | downcase -%}
+{%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
+
+{%- if product.metafields.custom.sibling_products != blank -%}
+  <div class="sibling-products-swatches">
+    <div class="sibling-products-swatches__label">
+      {{ 'product.general.other_variants' | t }}
+    </div>
+    
+    <div class="sibling-products-swatches__list">
+      {%- for sibling in product.metafields.custom.sibling_products.value -%}
+        {%- assign sibling_product = all_products[sibling.handle] -%}
+        
+        {%- comment -%} Find the color option {%- endcomment -%}
+        {%- for option in sibling_product.options_with_values -%}
+          {%- assign option_downcase = option.name | downcase -%}
+          
+          {%- if option_downcase contains 'color' or option_downcase contains 'colour' or option_downcase contains 'farbe' -%}
+            {%- assign color_option_index = forloop.index0 -%}
+            {%- assign color_value = sibling_product.selected_or_first_available_variant.options[color_option_index] -%}
+            {%- assign color_value_downcase = color_value | downcase -%}
+            
+            <a href="{{ sibling_product.url }}" 
+               class="sibling-swatch {% if sibling_product.handle == product.handle %}is-active{% endif %}"
+               title="{{ color_value }}"
+               style="{% render 'color-swatch-style', color_swatch_config: color_swatch_config, value: color_value %}">
+              <span class="visually-hidden">{{ color_value }}</span>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <style>
+    .sibling-products-swatches {
+      margin: 1.5rem 0;
+    }
+    
+    .sibling-products-swatches__label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .sibling-products-swatches__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    
+    .sibling-swatch {
+      display: block;
+      width: 3.2rem;
+      height: 3.2rem;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .sibling-swatch:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .sibling-swatch.is-active {
+      box-shadow: 0 0 0 2px #000;
+    }
+    
+    .sibling-swatch--white {
+      border-color: #e1e1e1;
+    }
+  </style>
+{%- endif -%}
